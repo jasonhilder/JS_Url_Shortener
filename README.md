@@ -1,4 +1,4 @@
-<h1 align="center">Welcome to My Url Shortener 👋</h1>
+<h1 align="center">Welcome To My Url Shortener 👋</h1>
 <p>
   <a href="https://www.npmjs.com/package/url_shortener" target="_blank">
     <img alt="Version" src="https://img.shields.io/npm/v/url_shortener.svg">
