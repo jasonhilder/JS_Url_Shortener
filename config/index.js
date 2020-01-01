@@ -6,7 +6,7 @@ dotenv.config();
 // Set up config parameters
 const config = {
     // Defaults
-    version: '0.0',
+    version: '1.0',
     app: 'Auth API',
     env: process.env.NODE_ENV || 'development',
     port: process.env.PORT || 3030,
