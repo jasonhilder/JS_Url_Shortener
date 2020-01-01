@@ -8,13 +8,13 @@ module.exports = (app) => {
     // Home Route served from a static folder
     app.get('/', (req, res) => {
         res.status(200).send({
-            version: 1.0,
+            version: '1.0',
             time: date,
             description: 'A Url shortener similar to sites like bitly.'
         })
     })
 
-    app.use(express.json());
+    app.use(express.json({ extended: false }));
     
     // Middleware routes
     app.use('/api/', shortenUrl);
