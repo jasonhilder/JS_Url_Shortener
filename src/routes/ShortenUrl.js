@@ -7,17 +7,18 @@ const cfg           = require('../../config');
 
 router.post('/short', async (req, res) => {
 
-    // Check Is It Is A Valid URL NOT GREAT
+    // Check Is It Is A Valid URL (NOT GREAT!!)
     if (validUrl.isUri(req.body.longUrl)) {
 
         // Check Data Base For The URL
         const urlExist = await Urls.findOne({where: {longUrl: req.body.longUrl}});
         
         if (urlExist) {
-            const { hashedUrl } = urlExist;
+            const { hashedUrl, id } = urlExist;
             // Make This Return the short URL Rather Than Generate A New One If Its There
             return res.status(200).json({
                 msg: 'The URL already exists.',
+                id: id,
                 hashedUrl: hashedUrl
             });
         
