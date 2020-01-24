@@ -1,7 +1,7 @@
 import React from 'react';
 
-const LinkItem = (link) => {
-    
+const LinkItem = ({ data: {shortUrl, longUrl}}) => {
+
     // Copy link Button
     const copyLink = (e) => {
         e.preventDefault();
@@ -15,21 +15,16 @@ const LinkItem = (link) => {
     }
 
     return (
-        <div className='container'>
-            <h4>Converted Links</h4>
-            <ul className='convertedLinks'>
-                <li className='link'>
-                    <span className='longLink'>
-                        {link}
-                    </span>
-                    <br />
-                    <span>
-                        <span className='shortLink' id='short-link'>shortUrl</span>
-                        <span className='copy'><button className='btn' onClick={copyLink}>Copy</button></span>
-                    </span>
-                </li>
-            </ul>
-        </div>
+        <li className='link'>
+            <span className='longLink'>
+               {longUrl}
+            </span>
+            <br />
+            <span>
+                <span className='shortLink' id='short-link'>{shortUrl}</span>
+                <span className='copy'><button className='btn' onClick={copyLink}>Copy</button></span>
+            </span>
+        </li>
     )
 }
 

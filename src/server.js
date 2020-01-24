@@ -10,13 +10,14 @@ require('./routes')(app);
 // Connect to MySQL
 db.authenticate()
     .then(() => {
-        console.log('Connection successfully established.');
+        console.log('DATABASE Connection successfully established.');
     })
     .catch(err => {
-        console.log('Unable to connect to the Database:', err);
+        console.log('Unable to connect to the DATABASE:', err);
     })
 
 
 // Create Webserver
 http.createServer(app).listen(
-    cfg.port, () => { console.log(`Express Server running on ${cfg.port}...`)})
+    cfg.port, () => { console.log(`Express Server running on ${cfg.port}...`)}
+    );

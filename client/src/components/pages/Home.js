@@ -1,55 +1,79 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import LinkItem from '../layout/LinkItem';
 import axios from 'axios';
+import array from 'lodash/array';
 
 const Home = () => {
     // Create Component State
-    const [ state, setState ] = useState({
+    const [state, setState] = useState({
         searchBar: null,
         longUrl: null,
-        shortUrl: null,
-        shortUrls: null,
-        hash: null
+        loading: false,
+        shortUrls: [],
     });
-
+    const { searchBar, shortUrls } = state;
+    
+    const onChange = (e) => {
+        e.preventDefault();
+        setState({ ...state, [e.target.name]: e.target.value })
+    }
+    
+    
+    
+    
+    
     // Checks local storage on load
     useEffect(() => {
-        if(localStorage.getItem('Converted-Links') !== null) {
-            let list = JSON.parse(localStorage.getItem('Converted-Links'));
-            setState({ ...state, longUrl: Object.values(list[0])[0], shortUrl: Object.values(list[0])[1], shortUrls: list})
-            console.log(Object.values(list[0])[1]);
+        if (localStorage.getItem('Converted-Links') !== null) {
+            let list = JSON.parse(localStorage.getItem('Converted-Links'));            
+            setState({ shortUrls: state.shortUrls.concat(list)})    
         }
         // eslint-disable-next-line
     }, []);
 
-    const onChange = (e) => {
-        e.preventDefault();
-        setState({...state, [e.target.name]:e.target.value })
-    }
-
+    
+    
+     
+    
+    
+    
     const onSubmit = async (e) => {
         e.preventDefault();
+        
+        // Make this an Action in the contextState file
+        setState({...state, loading: true})
+        
+        // Config for axios
         const config = {
             headers: {
                 'Content-Type': 'application/json'
             }
         };
-        const res = await axios.post('/api/short', {longUrl: state.searchBar}, config);
-        const short_url = 'http://localhost:8080/'+res.data.hashedUrl
-
-        //Store to localstorage, It overwrites on each store so we check first and create an array
-        let existingEntries = JSON.parse(localStorage.getItem('Converted-Links'));
-        if (existingEntries === null) existingEntries = [];
-        // Create our new entry and append to array
-        const entry = { longUrl: state.searchBar, shortUrl: short_url };
-        existingEntries.push(entry);
-        // Store new array
-        localStorage.setItem('Converted-Links', JSON.stringify(existingEntries));
-
+        const res = await axios.post('/api/short', { longUrl: state.searchBar }, config);
+        const response = {
+            id: res.data.id,
+            shortUrl: 'http://localhost:5000/r/' + res.data.hashedUrl,
+            longUrl: searchBar,
+        }
+        console.log(response);
+        // Set/Append the state to local storage 
+        let list = JSON.parse(localStorage.getItem('Converted-Links'));
+        if(list === null) list = [];
+        list.push(response);
+        const uniqueList = array.uniqBy(list, 'longUrl');
         // Set the response to state
-        setState({ ...state, hash: res.data.hashedUrl, longUrl: state.searchBar  , shortUrl: short_url, shortUrls: existingEntries });
+        setState({ ...state, shortUrls: uniqueList, loading: false });
+        localStorage.setItem("Converted-Links", JSON.stringify(uniqueList));
+        
+        
         
     };
+
+    
+    
+    if(state.loading) {
+        return <Fragment>Loading....</Fragment>
+    }
 
     return (
         <Fragment>
@@ -66,13 +90,18 @@ const Home = () => {
                 </form>
             </div>
         </div>
-
-        {/* Need to dynamically load a input bar with the short url if the state has a hashedUrl & Possibly store to local storage & add transitions */}
-            {state.shortUrls !== null && (
-                state.shortUrls.map((link) => (
-                    <LinkItem link={link} />
-                )) 
-            )}
+        
+        {/* If array Exists loop through and create link components */}
+        {state.shortUrls !== null &&
+            <div className='container'>
+                <h4>Converted Links</h4>
+                <ul className='convertedLinks'>
+                   {shortUrls.map(url => (
+                       <LinkItem key={url.id} data={url} />
+                   ))}
+                </ul>
+            </div>
+        }
         </Fragment>
     )
 };
