@@ -1,77 +1,51 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { Fragment, useContext, useState, useEffect } from 'react';
 import LinkItem from '../layout/LinkItem';
-import axios from 'axios';
-import array from 'lodash/array';
+import AppContext from '../../context/app/appContext';
+
 
 const Home = () => {
+    // Init Context State
+    const appContext = useContext(AppContext);
+    // Destructure Context State
+    const { loading, shortUrls } = appContext;
     // Create Component State
-    const [state, setState] = useState({
-        searchBar: null,
-        longUrl: null,
-        loading: false,
-        shortUrls: [],
-    });
-    const { searchBar, shortUrls } = state;
+    const [search, setSearch] = useState('');
     
     const onChange = (e) => {
         e.preventDefault();
-        setState({ ...state, [e.target.name]: e.target.value })
+        setSearch({ [e.target.name]: e.target.value })
     }
-    
-    
-    
-    
     
     // Checks local storage on load
     useEffect(() => {
-        if (localStorage.getItem('Converted-Links') !== null) {
-            let list = JSON.parse(localStorage.getItem('Converted-Links'));            
-            setState({ shortUrls: state.shortUrls.concat(list)})    
-        }
+        appContext.checkStorage();
         // eslint-disable-next-line
     }, []);
 
-    
-    
-     
-    
-    
-    
     const onSubmit = async (e) => {
         e.preventDefault();
-        
-        // Make this an Action in the contextState file
-        setState({...state, loading: true})
-        
-        // Config for axios
-        const config = {
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        };
-        const res = await axios.post('/api/short', { longUrl: state.searchBar }, config);
-        const response = {
-            id: res.data.id,
-            shortUrl: 'http://localhost:5000/r/' + res.data.hashedUrl,
-            longUrl: searchBar,
-        }
-        console.log(response);
-        // Set/Append the state to local storage 
-        let list = JSON.parse(localStorage.getItem('Converted-Links'));
-        if(list === null) list = [];
-        list.push(response);
-        const uniqueList = array.uniqBy(list, 'longUrl');
-        // Set the response to state
-        setState({ ...state, shortUrls: uniqueList, loading: false });
-        localStorage.setItem("Converted-Links", JSON.stringify(uniqueList));
-        
-        
-        
+        appContext.setLoading();
+        appContext.getUrl(search);
     };
 
-    
-    
-    if(state.loading) {
+    const onClear = (e) => {
+        e.preventDefault();
+        appContext.setLoading();
+        appContext.clearStorage();
+    };
+    // Copy link Button
+    const copyLink = (e) => {
+        e.preventDefault();
+        const link = document.getElementById('short-link');
+        const textArea = document.createElement('textarea');
+        textArea.value = link.innerText;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('Copy');
+        textArea.remove();
+    }
+
+    if(loading) {
         return <Fragment>Loading....</Fragment>
     }
 
@@ -92,7 +66,7 @@ const Home = () => {
         </div>
         
         {/* If array Exists loop through and create link components */}
-        {state.shortUrls !== null &&
+        {shortUrls.length > 0  &&
             <div className='container'>
                 <h4>Converted Links</h4>
                 <ul className='convertedLinks'>
@@ -100,7 +74,11 @@ const Home = () => {
                        <LinkItem key={url.id} data={url} />
                    ))}
                 </ul>
+                <div>
+                    <button className='btn btn-clear' onClick={onClear}> Clear History </button>
+                </div>
             </div>
+            
         }
         </Fragment>
     )
