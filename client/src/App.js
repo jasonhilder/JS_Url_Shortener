@@ -3,19 +3,22 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import NavBar from './components/layout/NavBar';
 import Home from './components/pages/Home';
 import About from './components/pages/About';
+import AppState from './context/app/AppState';
 import './App.css';
 
 function App() {
   return (
-    <Router>
-      <Fragment >
-        <NavBar />
-        <Switch>
-          <Route exact path='/' component={Home} />
-          <Route exact path='/about' component={About} />
-        </Switch>
-      </Fragment>
-    </Router>
+    <AppState>
+      <Router>
+        <Fragment >
+          <NavBar />
+          <Switch>
+            <Route exact path='/' component={Home} />
+            <Route exact path='/about' component={About} />
+          </Switch>
+        </Fragment>
+      </Router>
+    </AppState>
   );
 }
 
